@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "screen.h"
+#include "comm.h"
 
 void testTone(int freq, double duration)
 {
@@ -78,11 +79,17 @@ void fillID(const char *s, char duration[])
         for(i=0; i<4; i++)
                 duration[i] = *s++;
 }
-
+//function calcualtes 1 sec samples into 80 pieces of RMS value, each RMS value is calculated from 16000/80=200
+//pieces of samples. See Wikipepage for "Root Mean Square"
+//However only 8 pieces of data are sent yo the server as Fast Mode of Sound Level Meter SLM
 void displayWAVdata(short int d[])
 {
         int i, j;
-        double sum200, rms200;
+	//following variables are used to calculate RMS200
+        double sum200, rms200, max200=0.0, min200=20000.0;
+	//following variables are used to calculate RMS200 (fast Leq values)
+	double Leqf[8], sum2000 = 0.0;
+
         for(i=0; i<80; ++i)
         {
                 sum200 = 0.0;           //initialize the accumlateor
@@ -91,11 +98,29 @@ void displayWAVdata(short int d[])
                         sum200 += (*d)*(*d);
                         d++;            //treat d as a pointer, pointer increament
                 }
+		sum2000 += sum200;
+		if(i%10==9)	//for every 10 pieces of rms200, we get a rms2000
+		{
+			Leqf[i/10] = sqrt(sum2000/SAMPLE_RATE/8);
+			sum2000 = 0.0;	//reset 2000
+		}
                 rms200 = sqrt(sum200/(SAMPLE_RATE/80));
+		//find decible value of sound using logrithm
+		rms200 = 20*log10(rms200);
+		//find maximumnd minimum level of rms200
+		if(rms200 < min200) min200 = rms200;
+		if(rms200 > max200) max200 = rms200;
 #ifdef DEBUG	//conditional compiling
-                printf("%d %10.2f ", i, rms200);
+                printf("%d %10.2f ", i, rms200);	//display value in plain text
 #else
-	displayBar(rms200, i+1);
+	displayBar(rms200, i+1);	//display bar graph
 #endif
         }
+	//display max200 and min200 in debug mode
+#ifdef DEBUG
+	printf("\nmin = %.2f, max = %.2f\n", min200, max200);
+#endif
+#ifdef COMM	//only in the case COMM is defined, send data to server
+	send_data_curl(Leqf);
+#endif
 }
