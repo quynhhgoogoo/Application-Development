@@ -11,7 +11,8 @@ GENERAL CONTENTS :
 5. Copyright and licensing information.
 6. Contact information for the distributor or programer.
 
-1. Configuration
+
+1. Configuration instructions :
 
 1.1 Hardwave configuration
 A raspberry Pi 2 is recommended. If a older version of Pi is used, corresponding
