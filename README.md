@@ -49,7 +49,7 @@ To fix this problem, we have to downgrade alsa-util to an earlier version (1.0.2
 
 Step 1 : Use sudo nano /etc/apt/sources.list command and add the last line:
 deb http://mirrordirector.raspbian.org/raspbian/ jessie main contrib non-free rpi
-# Uncomment line below then 'apt-get update' to enable 'apt-get source'
+#Uncomment line below then 'apt-get update' to enable 'apt-get source'
 #deb-src http://archive.raspbian.org/raspbian/ jessie main contrib non-free rpi
 deb http://mirrordirector.raspbian.org/raspbian/ wheezy main contrib non-free rpi
 Step 2 : Run sudo apt-get update
